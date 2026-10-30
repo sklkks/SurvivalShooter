@@ -11,7 +11,7 @@ public class Zombie : LivingEntity
         Idle,
         Trace,
         Attack,
-        Die
+        Death
     }
 
     public Transform target;
@@ -35,8 +35,29 @@ public class Zombie : LivingEntity
     private Status currentStatus;
 
     public static readonly int IdHasTarget = Animator.StringToHash("HasTarget");
-    public static readonly int IdDie = Animator.StringToHash("Die");
+    public static readonly int IdDeath = Animator.StringToHash("Death");
     public static readonly int IdAttack = Animator.StringToHash("Attack");
+
+    // 클래스 상단 변수 선언부 적당한 곳에 추가
+private bool isTargetInRange = false;
+
+private void OnTriggerStay(Collider other)
+{
+    if (IsDead) return;
+
+    if (((1 << other.gameObject.layer) & targetLayer) != 0)
+    {
+        isTargetInRange = true;
+    }
+}
+
+private void OnTriggerExit(Collider other)
+{
+    if (((1 << other.gameObject.layer) & targetLayer) != 0)
+    {
+        isTargetInRange = false;
+    }
+}
 
     public Status CurrentStatus
     {
@@ -58,9 +79,9 @@ public class Zombie : LivingEntity
                     zombieAnimator.SetBool(IdHasTarget, false);
                     agent.isStopped = true;
                     break;
-                case Status.Die:
+                case Status.Death:
                     agent.isStopped = true;
-                    zombieAnimator.SetTrigger(IdDie);
+                    zombieAnimator.SetTrigger(IdDeath);
                     zombieCollider.enabled = false;
                     zombieAudioSource.PlayOneShot(deathClip);
                     break;
@@ -81,25 +102,6 @@ public class Zombie : LivingEntity
         zombieAnimator = GetComponent<Animator>();
         zombieAudioSource = GetComponent<AudioSource>();
     }
-
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-        
-        if (agent.isOnNavMesh)
-        {
-            agent.ResetPath();
-        }
-
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 10f, NavMesh.AllAreas))
-        {
-            agent.Warp(hit.position);
-        }
-
-        zombieCollider.enabled = true;
-
-        CurrentStatus = Status.Idle;
-    }
  
     private void Update()
     {
@@ -114,8 +116,8 @@ public class Zombie : LivingEntity
                 case Status.Attack:
                     UpdateAttack();
                     break;
-                case Status.Die:
-                    UpdateDie();
+                case Status.Death:
+                    UpdateDeath();
                     break;
             }
     }
@@ -134,7 +136,7 @@ public class Zombie : LivingEntity
 
     private void UpdateAttack()
     {
-        if(target == null || Vector3.Distance(transform.position, target.position) > attackDistance)
+        if (!isTargetInRange || target == null)
         {
             CurrentStatus = Status.Trace;
             return;
@@ -148,7 +150,6 @@ public class Zombie : LivingEntity
             var hitNormal = (transform.position - target.position).normalized;
             damageable.OnDamage(damage, target.position, hitNormal);
         }
-
     }
 
     public void Attack()
@@ -158,23 +159,21 @@ public class Zombie : LivingEntity
 
     private void UpdateTrace()
     {
-        if(target != null && Vector3.Distance(transform.position, target.position) < attackDistance)
+        if (target == null)
         {
-            CurrentStatus = Status.Attack;
-            return;
-        }
-
-        if(target == null || Vector3.Distance(transform.position, target.position) > traceDistance)
-        {
-            target = null;
             CurrentStatus = Status.Idle;
             return;
         }
 
         agent.SetDestination(target.position);
+
+        if (isTargetInRange)
+        {
+            CurrentStatus = Status.Attack;
+        }
     }
 
-    private void UpdateDie()
+    private void UpdateDeath()
     {
     }
 
@@ -198,6 +197,34 @@ public class Zombie : LivingEntity
 
         return closet;
     }
+    
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        
+        if (agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+        }
+
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 10f, NavMesh.AllAreas))
+        {
+            agent.Warp(hit.position);
+        }
+
+        zombieCollider.enabled = true;
+        isTargetInRange = false;
+
+        target = GameObject.FindWithTag("Player")?.transform;
+        if (target != null)
+        {
+            CurrentStatus = Status.Trace;
+        }
+        else
+        {
+            CurrentStatus = Status.Idle;
+        }
+    }
 
     public override void OnDamage(float damage, Vector3 hitPoint, Vector3 hitNormal)
     {
@@ -210,10 +237,10 @@ public class Zombie : LivingEntity
         zombieAudioSource.PlayOneShot(hitClip);                       
     }
 
-    public override void Die()
+    public override void Death()
     {
-        base.Die();
+        base.Death();
 
-        CurrentStatus = Status.Die;
+        CurrentStatus = Status.Death;
     }
 }

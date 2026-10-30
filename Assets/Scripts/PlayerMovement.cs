@@ -4,7 +4,7 @@ public class PlayerMovement : MonoBehaviour
 {    
     public static readonly int HashSpeed = Animator.StringToHash("Speed");
 
-    public float moveSpeed = 5f;
+    public float moveSpeed = 10f;
 
     private Animator playerAnimator;
     private Rigidbody playerRigidbody;
@@ -35,5 +35,15 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 moveDelta = moveDir * moveSpeed * Time.fixedDeltaTime;
         playerRigidbody.MovePosition(playerRigidbody.position + moveDelta);
+    }
+    public void Death()
+    {
+        var lookAtScript = GetComponent<LookAt>();
+        if (lookAtScript != null)
+        {
+            lookAtScript.enabled = false; 
+        }
+
+        playerAnimator.SetTrigger("Death");
     }
 }

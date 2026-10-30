@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class ZombieSpawner : MonoBehaviour
 {
-    // private UIManager uIManager;
+    private UIManager uIManager;
     public Zombie zombiePrefab;
     public Zombie zombiePrefab1;
     public Zombie zombiePrefab2;
@@ -23,7 +23,7 @@ public class ZombieSpawner : MonoBehaviour
     {
         GameObject findGo = GameObject.FindWithTag("GameController");
         gameManager = findGo.GetComponent<GameManager>();
-        // uIManager = gameManager.uIManager;
+        uIManager = gameManager.uIManager;
 
     }
     private void Update()
@@ -41,25 +41,30 @@ public class ZombieSpawner : MonoBehaviour
         {
             CreateZombie();
         }
-        // uIManager.SetWaveText(wave, zombies.Count);
+        uIManager.SetWaveText(wave, zombies.Count);
     }
     private void CreateZombie()
     {
         Transform point = spawnPoints[Random.Range(0, spawnPoints.Length)];
-        ZombieData data = zombieDatas[Random.Range(0, zombieDatas.Length)];
+
+        int zombieType = Random.Range(0, 3);
+
+        ZombieData data = zombieDatas[zombieType]; 
 
         Zombie zombie;
+
         if(zombiePool.Count == 0)
         {
-            zombie = Instantiate(zombiePrefab);
+            Zombie selectedPrefab = zombiePrefab;
+            if (zombieType == 1) selectedPrefab = zombiePrefab1;
+            else if (zombieType == 2) selectedPrefab = zombiePrefab2;
+
+            zombie = Instantiate(selectedPrefab);
             zombie.gameObject.SetActive(false);
             zombiePool.Add(zombie);
             
-
             zombie.OnDead.AddListener(() => zombies.Remove(zombie));
             zombie.OnDead.AddListener(() => StartCoroutine(CoReturnToPoolZombie(zombie)));        
-            // zombie.OnDead.AddListener(() => uIManager.SetWaveText(wave, zombies.Count));
-            // zombie.OnDead.AddListener(() => gameManager.AddScore(50));
         }
 
         zombie = zombiePool[0];
@@ -69,7 +74,6 @@ public class ZombieSpawner : MonoBehaviour
         zombie.gameObject.SetActive(true);        
         zombies.Add(zombie);
         zombiePool.Remove(zombie);
-
     }
     private IEnumerator CoReturnToPoolZombie(Zombie zombie)
     {
@@ -82,7 +86,7 @@ public class ZombieSpawner : MonoBehaviour
     {
         for(int i = zombies.Count - 1; i >= 0; --i)
         {
-            zombies[i].Die();
+            zombies[i].Death();
         }
     }
 }

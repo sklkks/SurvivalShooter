@@ -25,11 +25,11 @@ public class LivingEntity : MonoBehaviour, IDamageable
         if (Health <= 0f)
         {
             Health = 0f;
-            Die();
+            Death();
         }
     }
 
-    public virtual void Die()
+    public virtual void Death()
     {
         IsDead = true;
         OnDead.Invoke();

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class PlayerHealth : LivingEntity
 {
-    public static readonly int IdDie = Animator.StringToHash("Die");
+    public static readonly int IdDeath = Animator.StringToHash("Death");
     public Image uiHealth;
 
     public AudioClip hitClip;
@@ -55,16 +55,29 @@ public class PlayerHealth : LivingEntity
         uiHealth.fillAmount = Health / startingHealth;
     }
 
-    public override void Die()
+    public override void Death()
     {
-        base.Die();
-
-        playerAnimator.SetTrigger(IdDie);
+        base.Death();
+      
+        playerAnimator.SetTrigger(IdDeath);
         playerAudioSource.PlayOneShot(deathClip);
+        playerAnimator.SetTrigger("Death");
 
         playerMovement.enabled = false;
         playerInput.enabled = false;
         uiHealth.gameObject.SetActive(false);
+        
+        LookAt lookAt = GetComponent<LookAt>();
+        if (lookAt != null)
+        {
+            lookAt.enabled = false;
+        }
+
+        PlayerShooter playerShooter = GetComponent<PlayerShooter>();
+        if (playerShooter != null)
+        {
+            playerShooter.enabled = false;
+        }    
     }
     public override void Heal(float HealP)
     {

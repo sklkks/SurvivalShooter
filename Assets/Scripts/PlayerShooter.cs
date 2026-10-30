@@ -5,11 +5,10 @@ public class PlayerShooter : MonoBehaviour
     public AudioClip gunShotClip;
     public Transform firePoint;
 
-    public float fireRate = 0.1f;
-    private float nextFireTime = 0f;
-
+    public float fireRate = 0.1f;    
+    public Gun gun;
+    
     private AudioSource gunAudioSource;
-
     private void Awake()
     {
         gunAudioSource = GetComponent<AudioSource>();
@@ -23,21 +22,10 @@ public class PlayerShooter : MonoBehaviour
     {
         if (Input.GetButton("Fire1"))
         {
-            if (Time.time >= nextFireTime)
+            if (gun != null)
             {
-                nextFireTime = Time.time + fireRate;
-                Shoot();
+                gun.Fire();
             }
         }
-    }
-
-    private void Shoot()
-    {        
-        if (gunShotClip != null && gunAudioSource != null)
-        {
-            gunAudioSource.PlayOneShot(gunShotClip);
-        }
-        
-        Debug.Log("타타탕!");
-    }
+    }    
 }
