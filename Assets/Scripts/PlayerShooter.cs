@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerShooting : MonoBehaviour
+public class PlayerShooter : MonoBehaviour
 {
     public AudioClip gunShotClip;
     public Transform firePoint;
@@ -32,13 +32,12 @@ public class PlayerShooting : MonoBehaviour
     }
 
     private void Shoot()
-    {
-        // 총소리 재생
+    {        
         if (gunShotClip != null && gunAudioSource != null)
         {
             gunAudioSource.PlayOneShot(gunShotClip);
         }
         
-        Debug.Log("타타탕! 연사 중...");
+        Debug.Log("타타탕!");
     }
 }
