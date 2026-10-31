@@ -38,26 +38,25 @@ public class Zombie : LivingEntity
     public static readonly int IdDeath = Animator.StringToHash("Death");
     public static readonly int IdAttack = Animator.StringToHash("Attack");
 
-    // 클래스 상단 변수 선언부 적당한 곳에 추가
-private bool isTargetInRange = false;
+    private bool isTargetInRange = false;
 
-private void OnTriggerStay(Collider other)
-{
-    if (IsDead) return;
-
-    if (((1 << other.gameObject.layer) & targetLayer) != 0)
+    private void OnTriggerStay(Collider other)
     {
-        isTargetInRange = true;
-    }
-}
+        if (IsDead) return;
 
-private void OnTriggerExit(Collider other)
-{
-    if (((1 << other.gameObject.layer) & targetLayer) != 0)
-    {
-        isTargetInRange = false;
+        if (((1 << other.gameObject.layer) & targetLayer) != 0)
+        {
+            isTargetInRange = true;
+        }
     }
-}
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (((1 << other.gameObject.layer) & targetLayer) != 0)
+        {
+            isTargetInRange = false;
+        }
+    }
 
     public Status CurrentStatus
     {
@@ -242,6 +241,12 @@ private void OnTriggerExit(Collider other)
         base.Death();
 
         CurrentStatus = Status.Death;
+
+        GameManager gameManager = FindFirstObjectByType<GameManager>();
+        if (gameManager != null)
+        {
+            gameManager.AddScore(100);
+        }
     }
 
     public void StartSinking()

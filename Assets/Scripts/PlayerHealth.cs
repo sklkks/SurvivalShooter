@@ -78,7 +78,7 @@ public class PlayerHealth : LivingEntity
             playerShooter.enabled = false;
         }
 
-        UIManager uiManager = FindObjectOfType<UIManager>();
+        UIManager uiManager = FindFirstObjectByType<UIManager>();
         if (uiManager != null)
         {
             uiManager.SetActiveGameOverUI(true);
