@@ -243,4 +243,15 @@ private void OnTriggerExit(Collider other)
 
         CurrentStatus = Status.Death;
     }
+
+    public void StartSinking()
+    {
+        Collider collider = GetComponent<Collider>();
+        
+        if(collider != null)
+        {
+            collider.enabled = false;
+        }
+        Destroy(gameObject, 2f);
+    }
 }

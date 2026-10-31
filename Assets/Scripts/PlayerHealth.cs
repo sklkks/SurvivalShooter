@@ -61,7 +61,6 @@ public class PlayerHealth : LivingEntity
       
         playerAnimator.SetTrigger(IdDeath);
         playerAudioSource.PlayOneShot(deathClip);
-        playerAnimator.SetTrigger("Death");
 
         playerMovement.enabled = false;
         playerInput.enabled = false;
@@ -77,11 +76,12 @@ public class PlayerHealth : LivingEntity
         if (playerShooter != null)
         {
             playerShooter.enabled = false;
-        }    
-    }
-    public override void Heal(float HealP)
-    {
-        base.Heal(HealP);  
-        uiHealth.fillAmount = Health / startingHealth;              
+        }
+
+        UIManager uiManager = FindObjectOfType<UIManager>();
+        if (uiManager != null)
+        {
+            uiManager.SetActiveGameOverUI(true);
+        }
     }
 }

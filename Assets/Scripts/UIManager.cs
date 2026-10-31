@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
+
 public class UIManager : MonoBehaviour
 {    
     public TextMeshProUGUI waveInfoText;
@@ -8,11 +10,14 @@ public class UIManager : MonoBehaviour
 
     public GameObject gameOverUI;
 
-    private void OnEnable()
+    private void Awake()
     {
-        SetActiveGameOverUI(false);   
+        if (gameOverUI != null)
+        {
+            gameOverUI.SetActive(false);
+        }
     }
-    
+
     public void SetWaveText(int wave, int count)
     {
         waveInfoText.text = $"Wave: {wave}\nEnemy Left : {count}";
@@ -22,9 +27,17 @@ public class UIManager : MonoBehaviour
     {
         scoreText.text = $"Score: {score}";
     }
+
     public void SetActiveGameOverUI(bool active)
     {
-        gameOverUI.SetActive(active);
+        if (gameOverUI != null)
+        {
+            gameOverUI.SetActive(active);
+        }
+    }    
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
-    
 }

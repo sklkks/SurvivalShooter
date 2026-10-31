@@ -77,9 +77,12 @@ public class ZombieSpawner : MonoBehaviour
     }
     private IEnumerator CoReturnToPoolZombie(Zombie zombie)
     {
-        yield return new WaitForSeconds(5f);
-        zombie.gameObject.SetActive(false);
-        zombiePool.Add(zombie);
+        yield return new WaitForSeconds(2f);
+
+        if (zombie != null && zombie.gameObject != null)
+        {
+            zombie.gameObject.SetActive(false);
+        }
     }
 
     public void OnEndGame()
